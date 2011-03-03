@@ -871,6 +871,3 @@ require 'puppet/parser/parser_support'
 # Local Variables:
 # mode: ruby
 # End:
-
-# $Id$
-
