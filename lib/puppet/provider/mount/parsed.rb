@@ -62,7 +62,11 @@ Puppet::Type.type(:mount).provide(
         when :absent  # Mount not in fstab
           mount.provider.set(:ensure => :ghost)
         when :unmounted # Mount in fstab
-          mount.provider.set(:ensure => :mounted)
+          if mount.provider.get(:device) == hash[:device]
+            mount.provider.set(:ensure => :mounted)
+          else
+            mount.provider.set(:ensure => :incorrectly_mounted)
+          end
         end
       end
     end
@@ -70,15 +74,23 @@ Puppet::Type.type(:mount).provide(
 
   def self.mountinstances
     # XXX: Will not work for mount points that have spaces in path (does fstab support this anyways?)
-    regex = case Facter.value(:operatingsystem)
+    case Facter.value(:operatingsystem)
       when "Darwin"
-        / on (?:\/private\/var\/automount)?(\S*)/
+        # device, then mount point
+        device_first = true
+        regex = /(\S+) on (?:\/private\/var\/automount)?(\S*)/
       when "Solaris", "HP-UX"
-        /^(\S*) on /
+        # mount point, then device
+        device_first = false
+        regex = /^(\S*) on (\S+)/
       when "AIX"
-        /^(?:\S*\s+\S+\s+)(\S+)/
+        # mount point, then device
+        device_first = false
+        regex = /^(?:\S*\s+)(\S+)(?:\s+)(\S+)/
       else
-        / on (\S*)/
+        # device, then mount point
+        device_first = true
+        regex = /(\S+) on (\S*)/
     end
     instances = []
     mount_output = mountcmd.split("\n")
@@ -89,8 +101,13 @@ Puppet::Type.type(:mount).provide(
       mount_output[0..1] = []
     end
     mount_output.each do |line|
-      if match = regex.match(line) and name = match.captures.first
-        instances << {:name => name, :mounted => :yes} # Only :name is important here
+      if match = regex.match(line)
+        if device_first
+          device,name = match.captures
+        else
+          name,device = match.captures
+        end
+        instances << {:name => name, :mounted => :yes, :device => device}
       else
         raise Puppet::Error, "Could not understand line #{line} from mount output"
       end

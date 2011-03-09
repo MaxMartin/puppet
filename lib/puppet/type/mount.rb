@@ -26,6 +26,7 @@ module Puppet
       #  absent    -> present    NO       create
       # (mounted   -> present    YES)
       # (unmounted -> present    YES)
+      # incorrectly_mounted -> present NO 
       newvalue(:defined) do
         provider.create
         return :mount_created
