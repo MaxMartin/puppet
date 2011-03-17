@@ -34,6 +34,7 @@ describe Puppet::Type.type(:exec) do
     @command = Puppet.features.posix? ? '/bin/true whatever' : '"C:/Program Files/something.exe" whatever'
     File.stubs(:exists?).returns false
     File.stubs(:exists?).with(@executable).returns true
+    File.stubs(:exists?).with('/bin/false').returns true
     @example_path = Puppet.features.posix? ? %w{/usr/bin /bin} : [ "C:/Program Files/something/bin", "C:/Ruby/bin" ]
     File.stubs(:exists?).with(File.join(@example_path[0],"true")).returns true
     File.stubs(:exists?).with(File.join(@example_path[0],"false")).returns true
