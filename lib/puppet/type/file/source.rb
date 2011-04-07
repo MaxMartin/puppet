@@ -107,6 +107,7 @@ module Puppet
     # Copy the values from the source to the resource.  Yay.
     def copy_source_values
       devfail "Somehow got asked to copy source values without any metadata" unless metadata
+      #require 'ruby-debug';debugger;1
 
       # Take each of the stats and set them as states on the local file
       # if a value has not already been provided.
@@ -114,6 +115,7 @@ module Puppet
         param_name = (metadata_method == :checksum) ? :content : metadata_method
         next if metadata_method == :owner and !Puppet.features.root?
         next if metadata_method == :checksum and metadata.ftype == "directory"
+        next if metadata_method == :checksum and metadata.ftype == "link" and metadata.links == :manage
 
         if resource[param_name].nil? or resource[param_name] == :absent
           resource[param_name] = metadata.send(metadata_method)
