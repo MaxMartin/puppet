@@ -1105,4 +1105,14 @@ describe Puppet::Util::Settings do
 
     it "should cache the result"
   end
+
+  describe "#writesub" do
+    it "should only pass valid arguments to File.open" do
+      settings = Puppet::Util::Settings.new
+      settings.stubs(:get_config_file_default).with(:privatekeydir).returns(OpenStruct.new(:mode => "750"))
+
+      File.expects(:open).with("/path/to/keydir", "w", 750).returns true
+      settings.writesub(:privatekeydir, "/path/to/keydir")
+    end
+  end
 end
