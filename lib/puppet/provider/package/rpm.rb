@@ -9,6 +9,7 @@ Puppet::Type.type(:package).provide :rpm, :source => :rpm, :parent => Puppet::Pr
 
   # The query format by which we identify installed packages
   NEVRAFORMAT = "%{NAME} %|EPOCH?{%{EPOCH}}:{0}| %{VERSION} %{RELEASE} %{ARCH}"
+  # XXX Description needs to be added here?
   NEVRA_FIELDS = [:name, :epoch, :version, :release, :arch]
 
   commands :rpm => "rpm"

@@ -35,6 +35,7 @@ Puppet::Type.type(:package).provide :dpkg, :parent => Puppet::Provider::Package 
   end
 
   self::REGEX = %r{^(\S+) +(\S+) +(\S+) (\S+) (\S*)$}
+  # XXX Description needs to be added here?
   self::FIELDS = [:desired, :error, :status, :name, :ensure]
 
   def self.parse_line(line)
